@@ -55,6 +55,23 @@ def mark_posted(post: dict, channel: str, when: str, url: str = None) -> None:
     post["channels"][channel] = {"posted_at": when, "url": url}
 
 
+def next_for_channel(posts: list, channel: str):
+    """Следующий пост для канала. Сначала ещё не опубликованные; когда все
+    опубликованы — РЕЦИКЛИНГ: берём самый давно публиковавшийся (поток не
+    прерывается никогда). Возвращает (post, is_recycle)."""
+    fresh = next_unposted(posts, channel)
+    if fresh:
+        return fresh, False
+    dated = [
+        (p["channels"][channel]["posted_at"], p)
+        for p in posts if p["channels"].get(channel, {}).get("posted_at")
+    ]
+    if not dated:
+        return None, False
+    dated.sort(key=lambda t: t[0])
+    return dated[0][1], True
+
+
 def last_posted_at(posts: list, channel: str):
     """Самый свежий момент публикации в канал (datetime) или None."""
     stamps = [

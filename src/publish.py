@@ -125,9 +125,9 @@ def do_channel_post(posts, channel, ClientCls, body_field, force=False):
         print(f"{channel}: интервал не выдержан, следующий пост можно через ~{left} дн.")
         return False
 
-    post = q.next_unposted(posts, channel)
+    post, recycled = q.next_for_channel(posts, channel)
     if not post:
-        print(f"{channel}: новых постов нет (всё опубликовано).")
+        print(f"{channel}: очередь пуста.")
         return False
 
     body = post.get(body_field) or post.get("body_long", "")
@@ -148,7 +148,8 @@ def do_channel_post(posts, channel, ClientCls, body_field, force=False):
         print(f"{channel}: ошибка публикации «{post['id']}»: {e}")
         return False
     q.mark_posted(post, channel, _now_iso(), out.get("url"))
-    print(f"{channel}: опубликован «{post['id']}» → {out.get('url')}")
+    tag = " (повтор)" if recycled else ""
+    print(f"{channel}: опубликован «{post['id']}»{tag} → {out.get('url')}")
     return True
 
 
