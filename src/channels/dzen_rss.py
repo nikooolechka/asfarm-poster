@@ -48,6 +48,8 @@ def _head_extra() -> str:
     parts = []
     if config.YANDEX_VERIFICATION:
         parts.append(f'<meta name="yandex-verification" content="{html.escape(config.YANDEX_VERIFICATION)}" />')
+    if getattr(config, "ZEN_VERIFICATION", ""):
+        parts.append(f'<meta name="zen-verification" content="{html.escape(config.ZEN_VERIFICATION)}" />')
     if config.YANDEX_METRIKA_ID:
         mid = config.YANDEX_METRIKA_ID
         parts.append(
