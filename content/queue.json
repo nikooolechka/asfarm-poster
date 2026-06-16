@@ -27,7 +27,7 @@
   {
     "id": "bez-slez",
     "title": "Уход за зубами без слёз и уговоров",
-    "image": "content/images/bez-slez.jpg",
+    "image": "content/images/leto_cvety_rebenok.jpg",
     "links": {
       "wb": "https://www.wildberries.ru/catalog/140759945/detail.aspx",
       "ozon": "https://www.ozon.ru/product/823756780"
@@ -46,8 +46,7 @@
       "dzen": {
         "released_at": "2026-06-15T19:28:04.500862+00:00"
       }
-    },
-    "_image_url": "https://nikooolechka.github.io/asfarm-poster/images/bez-slez.jpg"
+    }
   },
   {
     "id": "kalendar-zubki",
@@ -102,7 +101,7 @@
   {
     "id": "vkusy-vybor",
     "title": "Груша, земляника или банан-шоколад: вкус, который полюбит малыш",
-    "image": "content/images/vkusy-vybor.jpg",
+    "image": "content/images/leto_morozhenoe.jpg",
     "links": {
       "wb": "https://www.wildberries.ru/catalog/583154383/detail.aspx",
       "ozon": "https://www.ozon.ru/product/3044396307"
@@ -121,8 +120,7 @@
       "dzen": {
         "released_at": "2026-06-15T19:28:04.500867+00:00"
       }
-    },
-    "_image_url": "https://nikooolechka.github.io/asfarm-poster/images/vkusy-vybor.jpg"
+    }
   },
   {
     "id": "vzroslye-doroga",
@@ -202,7 +200,7 @@
   {
     "id": "svezhest-dyhaniya",
     "title": "Что на самом деле влияет на свежесть дыхания",
-    "image": "content/images/svezhest.jpg",
+    "image": "content/images/leto_more_zhenshchina.jpg",
     "links": {
       "wb": "https://www.wildberries.ru/catalog/363137625/detail.aspx",
       "ozon": "https://www.ozon.ru/product/1938973353"
@@ -221,13 +219,12 @@
       "dzen": {
         "released_at": "2026-06-15T19:28:04.500873+00:00"
       }
-    },
-    "_image_url": "https://nikooolechka.github.io/asfarm-poster/images/svezhest.jpg"
+    }
   },
   {
     "id": "privychka-s-detstva",
     "title": "Привычки, которые остаются с ребёнком на всю жизнь",
-    "image": "content/images/privychka.jpg",
+    "image": "content/images/leto_mama_park.jpg",
     "links": {
       "wb": "https://www.wildberries.ru/catalog/205348527/detail.aspx",
       "ozon": "https://www.ozon.ru/product/1420874181"
@@ -246,7 +243,6 @@
       "dzen": {
         "released_at": "2026-06-15T19:28:04.500874+00:00"
       }
-    },
-    "_image_url": "https://nikooolechka.github.io/asfarm-poster/images/privychka.jpg"
+    }
   }
 ]
