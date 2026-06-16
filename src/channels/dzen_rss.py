@@ -44,6 +44,22 @@ def _links_html(links: dict) -> str:
     return f'<p>Где купить: {" · ".join(out)}</p>' if out else ""
 
 
+def _head_extra() -> str:
+    parts = []
+    if config.YANDEX_VERIFICATION:
+        parts.append(f'<meta name="yandex-verification" content="{html.escape(config.YANDEX_VERIFICATION)}" />')
+    if config.YANDEX_METRIKA_ID:
+        mid = config.YANDEX_METRIKA_ID
+        parts.append(
+            '<script>(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[])'
+            '.push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],'
+            'k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,"script",'
+            f'"https://mc.yandex.ru/metrika/tag.js","ym");ym({mid},"init",'
+            '{clickmap:true,trackLinks:true,accurateTrackBounce:true});</script>'
+        )
+    return "".join(parts)
+
+
 def _post_url(post: dict) -> str:
     return f"{config.SITE_BASE_URL.rstrip('/')}/posts/{post['id']}.html"
 
@@ -72,6 +88,7 @@ def _render_article_page(post: dict) -> str:
   p{{margin:0 0 16px;}}
   a{{color:#2a5885;}}
 </style>
+{_head_extra()}
 </head>
 <body>
 <article>
@@ -111,6 +128,7 @@ def _render_index(posts: list) -> str:
   .card img{{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;}}
   .card .t{{padding:12px 14px;font-size:15px;font-weight:600;line-height:1.35;}}
 </style>
+{_head_extra()}
 </head>
 <body>
   <header><h1>{html.escape(config.SITE_TITLE)}</h1><p>{html.escape(config.SITE_DESCRIPTION)}</p></header>
@@ -125,28 +143,38 @@ def _render_feed(posts: list) -> str:
     for p in posts:
         url = _post_url(p)
         content_html = _paragraphs_html(p.get("body_long", ""))
+        enclosure = ""
         if p.get("_image_url"):
             content_html = (
-                f'<figure><img src="{html.escape(p["_image_url"])}" width="700"></figure>'
+                f'<figure><img src="{html.escape(p["_image_url"])}"></figure>'
                 + content_html
             )
+            enclosure = f'\n      <enclosure url="{html.escape(p["_image_url"])}" type="image/jpeg"/>'
         content_html += _links_html(p.get("links"))
         items_xml.append(f"""    <item>
       <title>{html.escape(p['title'])}</title>
       <link>{html.escape(url)}</link>
       <guid isPermaLink="true">{html.escape(url)}</guid>
       <pubDate>{now}</pubDate>
+      <category>format-article</category>{enclosure}
       <description>{html.escape(p.get('body_long','')[:200])}</description>
       <content:encoded><![CDATA[{content_html}]]></content:encoded>
     </item>""")
     items = "\n".join(items_xml)
+    feed_url = f"{config.SITE_BASE_URL.rstrip('/')}/feed.xml"
     return f"""<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+<rss version="2.0"
+  xmlns:content="http://purl.org/rss/1.0/modules/content/"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:media="http://search.yahoo.com/mrss/"
+  xmlns:atom="http://www.w3.org/2005/Atom"
+  xmlns:georss="http://www.georss.org/georss">
   <channel>
     <title>{html.escape(config.SITE_TITLE)}</title>
     <link>{html.escape(config.SITE_BASE_URL)}</link>
     <description>{html.escape(config.SITE_DESCRIPTION)}</description>
     <language>ru</language>
+    <atom:link href="{html.escape(feed_url)}" rel="self" type="application/rss+xml"/>
 {items}
   </channel>
 </rss>"""

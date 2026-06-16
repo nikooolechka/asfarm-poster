@@ -29,6 +29,10 @@ DOCS_DIR = os.environ.get(
     os.path.join(os.path.dirname(os.path.dirname(__file__)), "docs"),
 )
 FEED_MAX_ITEMS = 30  # Дзену для первой разметки нужно ≥10 материалов в ленте
+# Код подтверждения прав на сайт в Яндекс.Вебмастере (метатег). Вставляется в <head>.
+YANDEX_VERIFICATION = os.environ.get("YANDEX_VERIFICATION", "")
+# ID счётчика Яндекс.Метрики (число). Сниппет добавляется на страницы сайта.
+YANDEX_METRIKA_ID = os.environ.get("YANDEX_METRIKA_ID", "")
 DZEN_BACKFILL_MIN = 10  # столько статей выпускаем сразу (бэкфилл), чтобы фид прошёл разметку
 
 # --- Безопасная частота публикаций (соблюдается автоматически) ---
