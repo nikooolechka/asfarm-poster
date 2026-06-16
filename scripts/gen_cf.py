@@ -13,9 +13,10 @@ DEFAULT_MODEL = "@cf/black-forest-labs/flux-1-schnell"
 _SSL = ssl._create_unverified_context()
 
 
-def gen(prompt: str, out_path: str, model: str = DEFAULT_MODEL) -> str:
+def gen(prompt: str, out_path: str, model: str = DEFAULT_MODEL,
+        width: int = 1344, height: int = 768) -> str:
     url = f"https://api.cloudflare.com/client/v4/accounts/{ACCOUNT}/ai/run/{model}"
-    body = json.dumps({"prompt": prompt, "steps": 8}).encode()
+    body = json.dumps({"prompt": prompt, "steps": 8, "width": width, "height": height}).encode()
     req = urllib.request.Request(
         url, data=body,
         headers={"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"},

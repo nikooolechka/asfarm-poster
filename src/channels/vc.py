@@ -21,11 +21,20 @@ from .. import config
 API = "https://api.vc.ru"
 REFRESH_URL = f"{API}/v3.4/auth/refresh"
 EDITOR_URL = f"{API}/v2.31/editor"
+UPLOAD_URL = "https://upload.vc.ru/v2.8/uploader/upload"
 _HEADERS = {"Origin": "https://vc.ru", "User-Agent": "Mozilla/5.0", "Referer": "https://vc.ru/"}
+
+_MIME = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png",
+         ".gif": "image/gif", ".webp": "image/webp"}
 
 
 def text_block(text: str) -> dict:
     return {"type": "text", "cover": False, "hidden": False, "anchor": "", "data": {"text": text}}
+
+
+def media_block(image_obj: dict) -> dict:
+    return {"type": "media", "cover": False, "hidden": False, "anchor": "",
+            "data": {"items": [{"title": "", "image": image_obj}], "size": "full"}}
 
 
 class VCClient:
@@ -69,10 +78,46 @@ class VCClient:
         self._save_rt(self.rt, data.get("refreshExpTimestamp"))
         return self.jwt
 
+    def upload_image(self, image_path: str) -> dict:
+        """Загружает файл на upload.vc.ru, возвращает image-объект для media_block."""
+        if not self.jwt:
+            self._refresh()
+        ext = os.path.splitext(image_path)[1].lower()
+        mime = _MIME.get(ext, "image/jpeg")
+        with open(image_path, "rb") as f:
+            r = requests.post(
+                UPLOAD_URL,
+                headers={**_HEADERS, "JWTAuthorization": f"Bearer {self.jwt}"},
+                files={"file": (os.path.basename(image_path), f, mime)},
+                timeout=60,
+            )
+        r.raise_for_status()
+        data = r.json()
+        # API отдаёт либо {"result":[image_obj,...]} либо сам список
+        result = data.get("result") if isinstance(data, dict) else data
+        if isinstance(result, list):
+            return result[0]
+        return result
+
     def publish(self, title: str, text: str, image_path: str = None, links: dict = None) -> dict:
-        """Публикует статью. text — на абзацы (\n\n); ссылки добавляются в конец."""
+        """Публикует статью. text — на абзацы (\n\n); image_path — вставляется после первого абзаца."""
         self._refresh()
-        blocks = [text_block(p.strip()) for p in text.split("\n\n") if p.strip()]
+        paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
+        blocks: list[dict] = []
+
+        # Первый абзац
+        if paragraphs:
+            blocks.append(text_block(paragraphs[0]))
+
+        # Картинка после первого абзаца
+        if image_path and os.path.exists(image_path):
+            image_obj = self.upload_image(image_path)
+            blocks.append(media_block(image_obj))
+
+        # Остальные абзацы
+        for p in paragraphs[1:]:
+            blocks.append(text_block(p))
+
         if links:
             tail = []
             if links.get("wb"):
