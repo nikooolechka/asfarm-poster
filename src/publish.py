@@ -180,6 +180,21 @@ def main(argv=None):
         from .channels.vc import VCClient
         changed |= do_channel_post(posts, "vc", VCClient, "body_long", args.force)
 
+    # Живые счётчики соцсетей (раз в сутки) + календарь — обновляем при каждом запуске.
+    try:
+        from scripts.gen_stats import main as _stats_main
+        _stats_main()
+    except Exception as _e:
+        print(f"Статистика: не удалось обновить ({_e}).")
+    try:
+        from scripts.gen_calendar import render as _cal_render
+        _out = os.path.join(REPO_ROOT, "docs", "calendar.html")
+        with open(_out, "w", encoding="utf-8") as _f:
+            _f.write(_cal_render(posts))
+        print("Календарь: docs/calendar.html обновлён.")
+    except Exception as _e:
+        print(f"Календарь: не удалось обновить ({_e}).")
+
     if changed:
         q.save(posts)
     return 0
