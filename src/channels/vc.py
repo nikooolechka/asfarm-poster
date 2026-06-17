@@ -32,6 +32,20 @@ def text_block(text: str) -> dict:
     return {"type": "text", "cover": False, "hidden": False, "anchor": "", "data": {"text": text}}
 
 
+def header_block(text: str, level: str = "h2") -> dict:
+    return {"type": "header", "cover": False, "hidden": False, "anchor": "",
+            "data": {"style": level, "text": text}}
+
+
+def para_block(p: str) -> dict:
+    """Текст или заголовок — определяет по префиксу ##/###."""
+    if p.startswith("### "):
+        return header_block(p[4:].strip(), "h3")
+    if p.startswith("## "):
+        return header_block(p[3:].strip(), "h2")
+    return text_block(p)
+
+
 def media_block(image_obj: dict) -> dict:
     return {"type": "media", "cover": False, "hidden": False, "anchor": "",
             "data": {"items": [{"title": "", "image": image_obj}], "size": "full"}}
@@ -107,7 +121,7 @@ class VCClient:
 
         # Первый абзац
         if paragraphs:
-            blocks.append(text_block(paragraphs[0]))
+            blocks.append(para_block(paragraphs[0]))
 
         # Картинка после первого абзаца
         if image_path and os.path.exists(image_path):
@@ -116,7 +130,7 @@ class VCClient:
 
         # Остальные абзацы
         for p in paragraphs[1:]:
-            blocks.append(text_block(p))
+            blocks.append(para_block(p))
 
         if links:
             tail = []
