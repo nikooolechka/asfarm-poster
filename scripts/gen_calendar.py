@@ -207,11 +207,12 @@ HTML = """<!DOCTYPE html>
   }
   .wrap{ max-width:1200px; margin:0 auto; padding:40px 22px 70px; position:relative; }
 
-  .brand{ position:absolute; top:34px; right:22px; width:190px; background:#fff;
-    border-radius:16px; padding:13px 17px; box-shadow:0 14px 34px rgba(0,0,0,.34);
-    border:1px solid rgba(255,255,255,.12); }
-  .brand img{ width:100%; display:block; }
-  @media (max-width:680px){ .brand{ position:static; width:170px; margin-bottom:18px; } }
+  .brand{ position:absolute; top:30px; right:24px; display:flex; flex-direction:column;
+    align-items:center; gap:6px; }
+  .brand img{ width:66px; height:auto; display:block; filter:drop-shadow(0 8px 20px rgba(0,0,0,.45)); }
+  .brand .wm{ font-weight:800; font-size:18px; letter-spacing:.01em; color:#96c41c; }
+  @media (max-width:680px){ .brand{ position:static; flex-direction:row; margin-bottom:14px; }
+    .brand img{ width:52px; } }
 
   .kicker{ font-size:12px; font-weight:700; letter-spacing:.22em; color:var(--acc1);
     text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:9px; }
@@ -317,7 +318,7 @@ HTML = """<!DOCTYPE html>
 </head>
 <body>
 <div class="wrap">
-  <div class="brand"><img src="images/asfarm_logo.png" alt="АС Фарм"></div>
+  <div class="brand"><img src="images/asfarm_logo.png" alt="АС Фарм"><span class="wm">ас-фарм</span></div>
   <div class="kicker"><span class="live"></span>АС&nbsp;Фарм · контент-план</div>
   <h1>Календарь публикаций</h1>
   <div class="sub">Живой график на текущий и следующий месяц. Обновлено <b>__GEN__</b></div>
