@@ -15,7 +15,7 @@ import os
 import html
 import shutil
 from email.utils import format_datetime
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from .. import config
 
@@ -140,10 +140,19 @@ def _render_index(posts: list) -> str:
 
 
 def _render_feed(posts: list) -> str:
-    now = format_datetime(datetime.now(timezone.utc))
+    _fallback = datetime.now(timezone.utc)
     items_xml = []
-    for p in posts:
+    for idx, p in enumerate(posts):
         url = _post_url(p)
+        ra = (p.get("channels", {}).get("dzen", {}) or {}).get("released_at")
+        try:
+            base_dt = datetime.fromisoformat(ra) if ra else _fallback
+        except Exception:
+            base_dt = _fallback
+        # Разносим pubDate по минутам: у каждой статьи своя СТАБИЛЬНАЯ дата
+        # (иначе при микросекундной разнице после форматирования они совпадают,
+        # и Дзен не различает статьи).
+        pub = format_datetime(base_dt + timedelta(minutes=idx))
         content_html = _paragraphs_html(p.get("body_long", ""))
         enclosure = ""
         if p.get("_image_url"):
@@ -157,7 +166,7 @@ def _render_feed(posts: list) -> str:
       <title>{html.escape(p['title'])}</title>
       <link>{html.escape(url)}</link>
       <guid isPermaLink="true">{html.escape(url)}</guid>
-      <pubDate>{now}</pubDate>
+      <pubDate>{pub}</pubDate>
       <category>format-article</category>{enclosure}
       <description>{html.escape(p.get('body_long','')[:200])}</description>
       <content:encoded><![CDATA[{content_html}]]></content:encoded>
