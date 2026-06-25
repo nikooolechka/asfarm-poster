@@ -129,31 +129,36 @@ def do_channel_post(posts, channel, ClientCls, body_field, force=False):
         print(f"{channel}: интервал не выдержан, следующий пост можно через ~{left} дн.")
         return False
 
-    post = q.next_unposted(posts, channel)
-    if not post:
-        print(f"{channel}: уникальных постов в очереди нет — нужно пополнить (повторы запрещены).")
-        return False
+    # Берём первый неопубликованный; если он падает (например, битая картинка) —
+    # НЕ застреваем на нём, а пробуем следующие, чтобы канал не молчал день за днём.
+    client = ClientCls()
+    tried = 0
+    for post in q.iter_unposted(posts, channel):
+        if tried >= 5:
+            break
+        tried += 1
+        body = post.get(body_field) or post.get("body_long", "")
+        res = validator.validate_post(post.get("title", ""), body)
+        if not res["ok"]:
+            print(f"{channel}: пост «{post['id']}» не прошёл валидацию, пропуск:")
+            for e in res["errors"]:
+                print(f"    ✗ {e}")
+            continue
+        try:
+            out = client.publish(
+                post["title"], body,
+                image_path=_abs_image(post.get("image")),
+                links=post.get("links"),
+            )
+        except Exception as e:
+            print(f"{channel}: ошибка публикации «{post['id']}» ({e}); пробую следующий пост.")
+            continue
+        q.mark_posted(post, channel, _now_iso(), out.get("url"))
+        print(f"{channel}: опубликован «{post['id']}» → {out.get('url')}")
+        return True
 
-    body = post.get(body_field) or post.get("body_long", "")
-    res = validator.validate_post(post.get("title", ""), body)
-    if not res["ok"]:
-        print(f"{channel}: пост «{post['id']}» НЕ прошёл валидацию, пропуск:")
-        for e in res["errors"]:
-            print(f"    ✗ {e}")
-        return False
-
-    try:
-        out = ClientCls().publish(
-            post["title"], body,
-            image_path=_abs_image(post.get("image")),
-            links=post.get("links"),
-        )
-    except Exception as e:
-        print(f"{channel}: ошибка публикации «{post['id']}»: {e}")
-        return False
-    q.mark_posted(post, channel, _now_iso(), out.get("url"))
-    print(f"{channel}: опубликован «{post['id']}» → {out.get('url')}")
-    return True
+    print(f"{channel}: не удалось опубликовать ни один из ближайших постов (проверено {tried}).")
+    return False
 
 
 def main(argv=None):

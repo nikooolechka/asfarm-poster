@@ -34,15 +34,28 @@ class VKClient:
         return data["response"]
 
     def _upload_photo(self, image_path: str) -> str:
-        srv = self._call("photos.getWallUploadServer", {"group_id": self.group_id})
-        with open(image_path, "rb") as f:
-            up = requests.post(srv["upload_url"], files={"photo": f}, timeout=120).json()
-        saved = self._call("photos.saveWallPhoto", {
-            "group_id": self.group_id,
-            "server": up["server"], "photo": up["photo"], "hash": up["hash"],
-        })
-        ph = saved[0]
-        return f"photo{ph['owner_id']}_{ph['id']}"
+        import time
+        last = ""
+        for _ in range(3):
+            srv = self._call("photos.getWallUploadServer", {"group_id": self.group_id})
+            with open(image_path, "rb") as f:
+                # Явные имя файла + content-type: без них VK иногда отдаёт пустое photo.
+                up = requests.post(
+                    srv["upload_url"],
+                    files={"photo": ("image.jpg", f, "image/jpeg")},
+                    timeout=120,
+                ).json()
+            photo = up.get("photo") or ""
+            if photo and photo not in ("[]", "null"):
+                saved = self._call("photos.saveWallPhoto", {
+                    "group_id": self.group_id,
+                    "server": up["server"], "photo": photo, "hash": up["hash"],
+                })
+                ph = saved[0]
+                return f"photo{ph['owner_id']}_{ph['id']}"
+            last = str(up)
+            time.sleep(2)
+        raise RuntimeError(f"VK: загрузка фото вернула пустое photo 3 раза: {last[:160]}")
 
     @staticmethod
     def _links_block(links: dict) -> str:

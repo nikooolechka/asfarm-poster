@@ -51,6 +51,14 @@ def next_unposted(posts: list, channel: str):
     return None
 
 
+def iter_unposted(posts: list, channel: str):
+    """Все ещё не опубликованные в канал посты, по порядку очереди.
+    Нужен, чтобы при сбое на одном посте перейти к следующему, а не застрять."""
+    for post in posts:
+        if not post["channels"].get(channel, {}).get("posted_at"):
+            yield post
+
+
 def mark_posted(post: dict, channel: str, when: str, url: str = None) -> None:
     post["channels"][channel] = {"posted_at": when, "url": url}
 
