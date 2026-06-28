@@ -79,12 +79,14 @@ def build_events(posts, today):
     # дате старта ленты (самый ранний released_at). Прошлые даты (<= сегодня) —
     # уже вышли (зелёным), будущие — план. Так видно и факт вчерашнего выхода,
     # и план до конца следующего месяца.
-    rel = [_d(p["channels"]["dzen"]["released_at"]) for p in posts
-           if p["channels"].get("dzen", {}).get("released_at")]
-    dd = min(rel) if rel else today
+    # Дзен публикует из RSS-ленты ПО СВОЕМУ графику и медленно — мы это не
+    # контролируем и не можем достоверно знать, что и когда реально вышло.
+    # Поэтому НЕ выдумываем «опубликовано»: показываем как ПЛАН в ленте (◷),
+    # раз в 2 дня от сегодня. Никаких фейковых прошлых публикаций.
+    dd = today
     for p in posts:
         ev.append(dict(date=dd, channel="dzen", title=p["title"], id=p["id"],
-                       status="published" if dd <= today else "planned", time="—"))
+                       status="planned", time="—"))
         dd += timedelta(days=DZEN_EVERY_DAYS)
 
     # --- БУДУЩЕЕ VC: РАЗ В 30 ДНЕЙ от фактической последней публикации ---
