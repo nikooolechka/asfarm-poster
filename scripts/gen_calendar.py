@@ -79,12 +79,18 @@ def build_events(posts, today):
     # дате старта ленты (самый ранний released_at). Прошлые даты (<= сегодня) —
     # уже вышли (зелёным), будущие — план. Так видно и факт вчерашнего выхода,
     # и план до конца следующего месяца.
-    # Дзен публикует из RSS-ленты ПО СВОЕМУ графику и медленно — мы это не
-    # контролируем и не можем достоверно знать, что и когда реально вышло.
-    # Поэтому НЕ выдумываем «опубликовано»: показываем как ПЛАН в ленте (◷),
+    # Дзен публикует из RSS-ленты ПО СВОЕМУ графику. Реально опубликованные
+    # отмечаем ВРУЧНУЮ полем channels.dzen.published_at (по факту, без выдумок) —
+    # они показываются как ОПУБЛИКОВАНО на свою дату. Остальные — ПЛАН в ленте (◷)
     # раз в 2 дня от сегодня. Никаких фейковых прошлых публикаций.
+    pubd = [p for p in posts if p["channels"].get("dzen", {}).get("published_at")]
+    for p in pubd:
+        ev.append(dict(date=_d(p["channels"]["dzen"]["published_at"]), channel="dzen",
+                       title=p["title"], id=p["id"], status="published", time="—"))
     dd = today
     for p in posts:
+        if p["channels"].get("dzen", {}).get("published_at"):
+            continue
         ev.append(dict(date=dd, channel="dzen", title=p["title"], id=p["id"],
                        status="planned", time="—"))
         dd += timedelta(days=DZEN_EVERY_DAYS)
