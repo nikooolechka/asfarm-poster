@@ -12,6 +12,7 @@
 """
 
 import os
+import html as _html
 import requests
 
 from .. import config
@@ -37,15 +38,31 @@ class TelegramClient:
         return payload["result"]
 
     @staticmethod
-    def _links_text(links: dict) -> str:
+    def _links_html(links: dict) -> str:
+        """Ссылки на маркеты вшиты в слова (HTML-якоря), без сырых URL."""
         if not links:
             return ""
-        out = []
+        parts = []
         if links.get("wb"):
-            out.append(f"Wildberries: {links['wb']}")
+            parts.append(f'<a href="{_html.escape(links["wb"], quote=True)}">Wildberries</a>')
         if links.get("ozon"):
-            out.append(f"Ozon: {links['ozon']}")
-        return ("\n\n" + "\n".join(out)) if out else ""
+            parts.append(f'<a href="{_html.escape(links["ozon"], quote=True)}">Ozon</a>')
+        return ("\n\n🛒 Заказать: " + " · ".join(parts)) if parts else ""
+
+    @staticmethod
+    def _caption_html(title: str, text: str, links: dict) -> str:
+        """Заголовок жирным, тело обычным, ссылки вшиты в слова."""
+        return (f"<b>{_html.escape(title.strip())}</b>\n\n"
+                f"{_html.escape(text.strip())}"
+                f"{TelegramClient._links_html(links)}")
+
+    @staticmethod
+    def _visible_len(title: str, text: str, links: dict) -> int:
+        """Длина видимого текста (без HTML-тегов) для проверки лимита подписи."""
+        base = len(title.strip()) + 2 + len(text.strip())
+        if links and (links.get("wb") or links.get("ozon")):
+            base += len("\n\n🛒 Заказать: ") + len("Wildberries · Ozon")
+        return base
 
     def _post_url(self, msg: dict) -> str:
         ch = self.channel.lstrip("@")
@@ -56,22 +73,27 @@ class TelegramClient:
 
     def publish(self, title: str, text: str, image_path: str = None, links: dict = None) -> dict:
         self._check()
-        full = f"{title}\n\n{text}".strip() + self._links_text(links)
+        caption = self._caption_html(title, text, links)
         if image_path and os.path.exists(image_path):
-            if len(full) <= CAPTION_LIMIT:
+            if self._visible_len(title, text, links) <= CAPTION_LIMIT:
                 with open(image_path, "rb") as f:
                     res = self._api("sendPhoto",
-                                    {"chat_id": self.channel, "caption": full},
+                                    {"chat_id": self.channel, "caption": caption, "parse_mode": "HTML"},
                                     files={"photo": ("image.jpg", f, "image/jpeg")})
                 return {"raw": res, "url": self._post_url(res)}
-            # длинный текст: фото с заголовком-подписью + полный текст отдельным сообщением
+            # длинный текст: фото с жирным заголовком-подписью + полный текст следом
             with open(image_path, "rb") as f:
                 res = self._api("sendPhoto",
-                                {"chat_id": self.channel, "caption": title.strip()},
+                                {"chat_id": self.channel,
+                                 "caption": f"<b>{_html.escape(title.strip())}</b>",
+                                 "parse_mode": "HTML"},
                                 files={"photo": ("image.jpg", f, "image/jpeg")})
             self._api("sendMessage",
-                      {"chat_id": self.channel, "text": text.strip() + self._links_text(links),
-                       "disable_web_page_preview": False})
+                      {"chat_id": self.channel,
+                       "text": _html.escape(text.strip()) + self._links_html(links),
+                       "parse_mode": "HTML", "disable_web_page_preview": True})
             return {"raw": res, "url": self._post_url(res)}
-        res = self._api("sendMessage", {"chat_id": self.channel, "text": full})
+        res = self._api("sendMessage",
+                        {"chat_id": self.channel, "text": caption,
+                         "parse_mode": "HTML", "disable_web_page_preview": True})
         return {"raw": res, "url": self._post_url(res)}

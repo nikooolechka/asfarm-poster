@@ -31,10 +31,12 @@ OUT = os.path.join(REPO_ROOT, "docs", "calendar.html")
 VK_TIME = "12:00"     # МСК, плановое (фактическое берём из posted_at)
 VC_TIME = "10:00"     # МСК, плановое
 OK_TIME = "10:00"     # МСК, плановое (ручная выкладка владельцем)
+TG_TIME = "12:00"     # МСК, плановое (автомат, как ВК)
 VK_EVERY_DAYS = 1
 DZEN_EVERY_DAYS = 2
 VC_EVERY_DAYS = 30
 OK_EVERY_DAYS = 1     # подготовленные посты OK — по одному в день
+TG_EVERY_DAYS = 1     # Telegram — каждый день, как ВК
 MSK = timezone(timedelta(hours=3))
 
 
@@ -125,6 +127,24 @@ def build_events(posts, today):
                        status="planned", time=OK_TIME))
         od += timedelta(days=OK_EVERY_DAYS)
 
+    # --- TELEGRAM: каждый день, как ВК. Опубликованные — по факту posted_at,
+    # дальше план по одному в день, пока в очереди есть посты (gen_month держит
+    # очередь заполненной до конца следующего месяца → план на месяц вперёд).
+    tg_done = {p["id"] for p in posts if p["channels"].get("tg", {}).get("posted_at")}
+    for p in posts:
+        pa = p["channels"].get("tg", {}).get("posted_at")
+        if pa:
+            ev.append(dict(date=_d(pa), channel="tg", title=p["title"], id=p["id"],
+                           status="published", time=_t(pa)))
+    last_tg = max([e["date"] for e in ev if e["channel"] == "tg"], default=today - timedelta(days=1))
+    td = max(last_tg + timedelta(days=TG_EVERY_DAYS), today)
+    for p in posts:
+        if p["id"] in tg_done:
+            continue
+        ev.append(dict(date=td, channel="tg", title=p["title"], id=p["id"],
+                       status="planned", time=TG_TIME))
+        td += timedelta(days=TG_EVERY_DAYS)
+
     return ev
 
 
@@ -149,6 +169,7 @@ def _networks_html(stats):
         ("vk",   "ВКонтакте",     "g-vk"),
         ("dzen", "Дзен",          "g-dz"),
         ("vc",   "VC.ru",         "g-vc"),
+        ("tg",   "Telegram",      "g-tg"),
         ("ok",   "Одноклассники", "g-ok"),
     ]
     cards = []
@@ -183,6 +204,7 @@ def render(posts, today=None):
     vk_left = len([e for e in events if e["channel"] == "vk" and e["status"] == "planned"])
     dzen_left = len([e for e in events if e["channel"] == "dzen" and e["status"] == "planned"])
     ok_left = len([e for e in events if e["channel"] == "ok" and e["status"] == "planned"])
+    tg_left = len([e for e in events if e["channel"] == "tg" and e["status"] == "planned"])
     pub_total = len([e for e in events if e["status"] == "published"])
     vc_planned = sorted([e for e in events if e["channel"] == "vc" and e["status"] == "planned"],
                         key=lambda e: e["date"])
@@ -197,6 +219,7 @@ def render(posts, today=None):
     dz_url = (stats.get("dzen") or {}).get("url", "https://dzen.ru/asfarm_ru")
     vc_url = (stats.get("vc") or {}).get("url", "https://vc.ru/id6010646")
     ok_url = (stats.get("ok") or {}).get("url", "https://ok.ru/group/70000052376502")
+    tg_url = (stats.get("tg") or {}).get("url", "https://t.me/asfarm_ru")
 
     return (HTML
             .replace("__DATA__", payload)
@@ -204,6 +227,8 @@ def render(posts, today=None):
             .replace("__VKLEFT__", str(vk_left))
             .replace("__DZENLEFT__", str(dzen_left))
             .replace("__OKLEFT__", str(ok_left))
+            .replace("__TGLEFT__", str(tg_left))
+            .replace("__TGURL__", tg_url)
             .replace("__PUBTOTAL__", str(pub_total))
             .replace("__NEXTVC__", next_vc)
             .replace("__NEXTVCTITLE__", html.escape(next_vc_title))
@@ -229,6 +254,7 @@ HTML = """<!DOCTYPE html>
     --glass:rgba(255,255,255,.045); --glass2:rgba(255,255,255,.07); --line:rgba(255,255,255,.09);
     --vk1:#3b82f6; --vk2:#1d4ed8; --dz1:#fb923c; --dz2:#ea580c; --vc1:#a855f7; --vc2:#6d28d9;
     --ok1:#fbbf24; --ok2:#d97706;
+    --tg1:#22d3ee; --tg2:#0e7490;
     --acc1:#38bdf8; --acc2:#22d3ee;
   }
   *{ box-sizing:border-box; }
@@ -262,7 +288,7 @@ HTML = """<!DOCTYPE html>
   .sub{ color:var(--muted); font-size:14.5px; margin-bottom:26px; }
   .sub b{ color:var(--ink); font-weight:600; }
 
-  .stats{ display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:26px; }
+  .stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(155px,1fr)); gap:14px; margin-bottom:26px; }
   @media (max-width:820px){ .stats{ grid-template-columns:repeat(2,1fr); } }
   .stat{ position:relative; overflow:hidden; padding:18px 18px 16px; border-radius:18px;
     background:var(--glass); border:1px solid var(--line); backdrop-filter:blur(14px);
@@ -277,10 +303,10 @@ HTML = """<!DOCTYPE html>
   .stat.dz::after{ background:linear-gradient(90deg,var(--dz1),var(--dz2)); }
   .stat.vc::after{ background:linear-gradient(90deg,var(--vc1),var(--vc2)); }
   .stat.ok::after{ background:linear-gradient(90deg,var(--ok1),var(--ok2)); }
+  .stat.tg::after{ background:linear-gradient(90deg,var(--tg1),var(--tg2)); }
 
   /* карточки соцсетей со счётчиками */
-  .nets{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:26px; }
-  @media (max-width:980px){ .nets{ grid-template-columns:repeat(2,1fr); } }
+  .nets{ display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; margin-bottom:26px; }
   @media (max-width:560px){ .nets{ grid-template-columns:1fr; } }
   .net{ display:block; text-decoration:none; color:inherit; padding:16px 18px; border-radius:18px;
     background:var(--glass); border:1px solid var(--line); backdrop-filter:blur(14px);
@@ -307,6 +333,7 @@ HTML = """<!DOCTYPE html>
   .g-dz{ background:linear-gradient(135deg,var(--dz1),var(--dz2)); }
   .g-vc{ background:linear-gradient(135deg,var(--vc1),var(--vc2)); }
   .g-ok{ background:linear-gradient(135deg,var(--ok1),var(--ok2)); }
+  .g-tg{ background:linear-gradient(135deg,var(--tg1),var(--tg2)); }
 
   .months{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
   @media (max-width:880px){ .months{ grid-template-columns:1fr; } }
@@ -343,6 +370,7 @@ HTML = """<!DOCTYPE html>
   .ev.dzen{ background:linear-gradient(135deg,var(--dz1),var(--dz2)); }
   .ev.vc{ background:linear-gradient(135deg,var(--vc1),var(--vc2)); }
   .ev.ok{ background:linear-gradient(135deg,var(--ok1),var(--ok2)); }
+  .ev.tg{ background:linear-gradient(135deg,var(--tg1),var(--tg2)); }
   .ev.planned{ opacity:.94; }
   .ev .top{ display:flex; align-items:center; gap:5px; font-size:10px; font-weight:800;
     letter-spacing:.02em; opacity:.96; }
@@ -368,6 +396,7 @@ HTML = """<!DOCTYPE html>
     <div class="stat vk"><div class="n">__VKLEFT__</div><div class="l">ВКонтакте в очереди</div><div class="sm">по одному посту в день</div></div>
     <div class="stat dz"><div class="n">__DZENLEFT__</div><div class="l">Дзен в очереди</div><div class="sm">по статье раз в 2 дня</div></div>
     <div class="stat vc"><div class="n">__NEXTVC__</div><div class="l">Следующий VC-лонгрид</div><div class="sm">__NEXTVCTITLE__</div></div>
+    <div class="stat tg"><div class="n">__TGLEFT__</div><div class="l">Telegram в очереди</div><div class="sm">по одному посту в день</div></div>
     <div class="stat ok"><div class="n">__OKLEFT__</div><div class="l">Одноклассники готовы</div><div class="sm">пакет постов к выкладке</div></div>
   </div>
 
@@ -377,6 +406,7 @@ HTML = """<!DOCTYPE html>
     <span class="chip"><span class="gdot g-vk"></span><a href="__VKURL__" target="_blank" rel="noopener">ВКонтакте</a>&nbsp;· каждый день, 12:00</span>
     <span class="chip"><span class="gdot g-dz"></span><a href="__DZURL__" target="_blank" rel="noopener">Дзен</a>&nbsp;· раз в 2 дня</span>
     <span class="chip"><span class="gdot g-vc"></span><a href="__VCURL__" target="_blank" rel="noopener">VC.ru</a>&nbsp;· раз в 30 дней, 10:00</span>
+    <span class="chip"><span class="gdot g-tg"></span><a href="__TGURL__" target="_blank" rel="noopener">Telegram</a>&nbsp;· каждый день, 12:00</span>
     <span class="chip"><span class="gdot g-ok"></span><a href="__OKURL__" target="_blank" rel="noopener">Одноклассники</a>&nbsp;· ручная выкладка</span>
     <span class="chip">✓ опубликовано&nbsp;&nbsp;·&nbsp;&nbsp;◷ запланировано</span>
   </div>
@@ -399,7 +429,7 @@ HTML = """<!DOCTYPE html>
 const EVENTS = __DATA__;
 const MONTHS_RU = ["январь","февраль","март","апрель","май","июнь","июль","август","сентябрь","октябрь","ноябрь","декабрь"];
 const DOW = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
-const CH = { vk:"ВК", vc:"VC.RU", dzen:"ДЗЕН", ok:"ОК" };
+const CH = { vk:"ВК", vc:"VC.RU", dzen:"ДЗЕН", ok:"ОК", tg:"TG" };
 
 function pad(n){ return String(n).padStart(2,"0"); }
 function iso(y,m,d){ return `${y}-${pad(m+1)}-${pad(d)}`; }
