@@ -21,7 +21,8 @@
       "dzen": {
         "released_at": "2026-06-06T12:00:00+03:00"
       },
-      "tg": {}
+      "tg": {},
+      "ok": {}
     },
     "_image_url": "/images/zdorovaya-ulybka.jpg"
   },
@@ -50,7 +51,8 @@
       "tg": {
         "posted_at": "2026-06-30T10:23:40.858235+00:00",
         "url": "https://t.me/asfarm_ru/4"
-      }
+      },
+      "ok": {}
     },
     "_image_url": "/images/leto_cvety_rebenok.jpg"
   },
@@ -75,7 +77,8 @@
       },
       "dzen": {
         "released_at": "2026-06-10T12:00:00+03:00"
-      }
+      },
+      "ok": {}
     },
     "_image_url": "/images/kalendar-zubki.jpg"
   },
@@ -100,7 +103,8 @@
       },
       "dzen": {
         "released_at": "2026-06-12T12:00:00+03:00"
-      }
+      },
+      "ok": {}
     },
     "_image_url": "/images/detskaya-pasta.jpg"
   },
@@ -127,7 +131,7 @@
         "released_at": "2026-06-14T12:00:00+03:00"
       },
       "ok": {
-        "planned": true
+        "published_at": "2026-06-30T13:55:18+03:00"
       }
     },
     "_image_url": "/images/leto_morozhenoe.jpg"
@@ -153,7 +157,8 @@
       },
       "dzen": {
         "released_at": "2026-06-16T12:00:00+03:00"
-      }
+      },
+      "ok": {}
     },
     "_image_url": "/images/vzroslye-doroga.jpg"
   },
@@ -178,7 +183,8 @@
       },
       "dzen": {
         "released_at": "2026-06-18T12:00:00+03:00"
-      }
+      },
+      "ok": {}
     },
     "_image_url": "/images/lezhachie-zabota.jpg"
   },
@@ -203,7 +209,8 @@
       },
       "dzen": {
         "released_at": "2026-06-20T12:00:00+03:00"
-      }
+      },
+      "ok": {}
     },
     "_image_url": "/images/irrigator.jpg"
   },
@@ -229,7 +236,8 @@
       "dzen": {
         "released_at": "2026-06-22T12:00:00+03:00",
         "published_at": "2026-06-30T12:00:00+03:00"
-      }
+      },
+      "ok": {}
     },
     "_image_url": "/images/leto_more_zhenshchina.jpg"
   },
@@ -255,7 +263,8 @@
       "dzen": {
         "released_at": "2026-06-24T12:00:00+03:00",
         "published_at": "2026-06-30T12:00:00+03:00"
-      }
+      },
+      "ok": {}
     },
     "_image_url": "/images/leto_mama_park.jpg"
   },
@@ -283,7 +292,7 @@
         "published_at": "2026-06-25T12:00:00+03:00"
       },
       "ok": {
-        "planned": true
+        "published_at": "2026-06-30T13:55:18+03:00"
       }
     },
     "_image_url": "/images/pervyy-stomatolog.jpg"
@@ -310,7 +319,8 @@
       "dzen": {
         "released_at": "2026-06-28T12:00:00+03:00",
         "published_at": "2026-06-30T12:00:00+03:00"
-      }
+      },
+      "ok": {}
     },
     "_image_url": "/images/desny-grudnichka.jpg"
   },
@@ -335,7 +345,8 @@
       },
       "dzen": {
         "released_at": "2026-06-30T06:00:16.430616+00:00"
-      }
+      },
+      "ok": {}
     },
     "_image_url": "/images/sladkoe-i-zuby.jpg"
   },
@@ -360,7 +371,8 @@
       },
       "dzen": {
         "released_at": null
-      }
+      },
+      "ok": {}
     }
   },
   {
@@ -384,7 +396,8 @@
       },
       "dzen": {
         "released_at": null
-      }
+      },
+      "ok": {}
     }
   },
   {
@@ -408,7 +421,8 @@
       },
       "dzen": {
         "released_at": null
-      }
+      },
+      "ok": {}
     }
   },
   {
@@ -432,7 +446,8 @@
       },
       "dzen": {
         "released_at": null
-      }
+      },
+      "ok": {}
     }
   },
   {
@@ -456,7 +471,8 @@
       },
       "dzen": {
         "released_at": null
-      }
+      },
+      "ok": {}
     }
   },
   {
@@ -480,7 +496,8 @@
       },
       "dzen": {
         "released_at": null
-      }
+      },
+      "ok": {}
     }
   },
   {
@@ -504,7 +521,8 @@
       },
       "dzen": {
         "released_at": null
-      }
+      },
+      "ok": {}
     }
   },
   {
@@ -528,7 +546,8 @@
       },
       "dzen": {
         "released_at": null
-      }
+      },
+      "ok": {}
     }
   },
   {
@@ -552,7 +571,8 @@
       },
       "dzen": {
         "released_at": null
-      }
+      },
+      "ok": {}
     }
   },
   {
@@ -576,7 +596,8 @@
       },
       "dzen": {
         "released_at": null
-      }
+      },
+      "ok": {}
     }
   },
   {
@@ -600,7 +621,8 @@
       },
       "dzen": {
         "released_at": null
-      }
+      },
+      "ok": {}
     }
   },
   {
@@ -624,7 +646,8 @@
       },
       "dzen": {
         "released_at": null
-      }
+      },
+      "ok": {}
     }
   },
   {
@@ -650,7 +673,7 @@
         "released_at": null
       },
       "ok": {
-        "planned": true
+        "published_at": "2026-06-30T13:55:18+03:00"
       }
     }
   },
@@ -675,7 +698,8 @@
       },
       "dzen": {
         "released_at": null
-      }
+      },
+      "ok": {}
     }
   },
   {
@@ -699,7 +723,8 @@
       },
       "dzen": {
         "released_at": null
-      }
+      },
+      "ok": {}
     }
   },
   {
@@ -723,7 +748,8 @@
       },
       "dzen": {
         "released_at": null
-      }
+      },
+      "ok": {}
     }
   },
   {
@@ -747,7 +773,8 @@
       },
       "dzen": {
         "released_at": null
-      }
+      },
+      "ok": {}
     }
   },
   {
@@ -765,7 +792,7 @@
       "vk": {},
       "dzen": {},
       "ok": {
-        "planned": true
+        "published_at": "2026-06-30T13:55:18+03:00"
       }
     }
   },
@@ -782,7 +809,8 @@
     "channels": {
       "vc": {},
       "vk": {},
-      "dzen": {}
+      "dzen": {},
+      "ok": {}
     }
   },
   {
@@ -798,7 +826,8 @@
     "channels": {
       "vc": {},
       "vk": {},
-      "dzen": {}
+      "dzen": {},
+      "ok": {}
     }
   },
   {
@@ -814,7 +843,8 @@
     "channels": {
       "vc": {},
       "vk": {},
-      "dzen": {}
+      "dzen": {},
+      "ok": {}
     }
   },
   {
@@ -830,7 +860,8 @@
     "channels": {
       "vc": {},
       "vk": {},
-      "dzen": {}
+      "dzen": {},
+      "ok": {}
     }
   },
   {
@@ -846,7 +877,8 @@
     "channels": {
       "vc": {},
       "vk": {},
-      "dzen": {}
+      "dzen": {},
+      "ok": {}
     }
   },
   {
@@ -862,7 +894,8 @@
     "channels": {
       "vc": {},
       "vk": {},
-      "dzen": {}
+      "dzen": {},
+      "ok": {}
     }
   },
   {
@@ -878,7 +911,8 @@
     "channels": {
       "vc": {},
       "vk": {},
-      "dzen": {}
+      "dzen": {},
+      "ok": {}
     }
   },
   {
@@ -894,7 +928,8 @@
     "channels": {
       "vc": {},
       "vk": {},
-      "dzen": {}
+      "dzen": {},
+      "ok": {}
     }
   },
   {
@@ -912,7 +947,7 @@
       "vk": {},
       "dzen": {},
       "ok": {
-        "planned": true
+        "published_at": "2026-06-30T13:55:18+03:00"
       }
     }
   },
@@ -929,7 +964,8 @@
     "channels": {
       "vc": {},
       "vk": {},
-      "dzen": {}
+      "dzen": {},
+      "ok": {}
     }
   },
   {
@@ -945,7 +981,10 @@
     "channels": {
       "vc": {},
       "vk": {},
-      "dzen": {}
+      "dzen": {},
+      "ok": {
+        "published_at": "2026-06-30T13:55:18+03:00"
+      }
     }
   },
   {
@@ -961,7 +1000,8 @@
     "channels": {
       "vc": {},
       "vk": {},
-      "dzen": {}
+      "dzen": {},
+      "ok": {}
     }
   },
   {
@@ -977,7 +1017,8 @@
     "channels": {
       "vc": {},
       "vk": {},
-      "dzen": {}
+      "dzen": {},
+      "ok": {}
     }
   }
 ]

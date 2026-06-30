@@ -44,10 +44,12 @@ jobs:
       - name: Validate (pytest)
         run: python -m pytest -q
 
-      - name: Sync Dzen publications (Scrapfly → календарь отражает реальность сам)
+      - name: Sync Dzen + OK publications (Scrapfly → календарь отражает реальность сам)
         env:
           SCRAPFLY_KEY: ${{ secrets.SCRAPFLY_KEY }}
-        run: python scripts/dzen_sync.py || echo "dzen_sync пропущен (не критично)"
+        run: |
+          python scripts/dzen_sync.py || echo "dzen_sync пропущен (не критично)"
+          python scripts/ok_sync.py || echo "ok_sync пропущен (не критично)"
 
       - name: Publish
         env:
